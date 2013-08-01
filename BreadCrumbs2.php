@@ -18,8 +18,8 @@ according to the Creative Commons Attribution 3.0 License.
 ***/
 
 # Change these constants to customize your installation
-define ("DELIM", '@');							// Delimiter/marker for parameters and keywords
-define ("CRUMBPAGE", 'MediaWiki:Breadcrumbs');	// Default is 'MediaWiki:Breadcrumbs'
+define ("DELIM", '@');							 // Delimiter/marker for parameters and keywords
+define ("CRUMBPAGE", 'MediaWiki:Breadcrumbs');	 // Default is 'MediaWiki:Breadcrumbs'
 
 # Standard sanity check
 if ( !defined( 'MEDIAWIKI' ) ) {
@@ -36,43 +36,62 @@ $wgExtensionCredits['other'][] = array(
 		'description' => 'Implements a Breadcrumb navigation based on categories'
 );
 
+$wgResourceModules['ext.breadcrumbs2'] = array(
+	'styles' => 'BreadCrumbs2.css',
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'BreadCrumbs2',
+);
+
 # Hook function modifies skin output after it has been generated
 $wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'buildBreadcrumbs';
+$wgHooks['BeforePageDisplay'][] = 'addBreadCrumbs2Modules';
+
+function addBreadCrumbs2Modules( OutputPage &$out, Skin &$skin ) {
+	$out->addModules( 'ext.breadcrumbs2' );
+
+	return true;
+}
 
 # This is the main function. Identify the categories for the current page,
 # then locate the first match in the navigation list.
 function buildBreadcrumbs( $skin, $template ) {
+	# Only show breadcrumbs when viewing the page, not editing, etc.
+	# The following line should perhaps utilize Action::getActionName( $skin->getContext() );
+	if ( $skin->getRequest()->getVal( 'action', 'view') != 'view' ) {
+		return true;
+	}
 
 	# Get the list of categories for the current page
-	preg_match_all( '`title="Category:(.*?)"`', $skin->getCategories(), $matches, PREG_PATTERN_ORDER );
-	$categories = $matches[1];
+	$categories = $skin->getOutput()->getCategories();
+
+	$title = $skin->getRelevantTitle();
 
 	# Treat the namespace as a category too
-	if ( $skin->getTitle()->getNsText() )
-		$categories[] = $skin->getTitle()->getNsText();
+	if ( $title->getNsText() ) {
+		$categories[] = $title->getNsText();
+	}
 
-	# Load and parse the breadcrumb template. If it's a redirected page, extract redirect info
 	$crumbs = matchFirstCategory( CRUMBPAGE, $categories );
-	$breadcrumb = trim( $crumbs[0] . ' ' . $skin->getTitle()->getText() );
-	if ( preg_match('/\(Redirected.*?\)/', $template->data['subtitle'], $match) )
-		$breadcrumb .= ' ' . $match[0];
-	# Set the page subtitle to the breadcrumb contents
-	$template->set( 'subtitle', $breadcrumb  );
+
+	# add current title
+	$breadcrumb = trim( $crumbs[0] . ' ' . $title->getText() );
+	$breadcrumbHTML =  Xml::openElement( 'div', array ( 'id' => 'breadcrumbs2' ) ) . $breadcrumb . Xml::closeElement( 'div' );
+	$skin->getOutput()->prependHTML( $breadcrumbHTML );
 
 	# If the current page is a category page, add it to the list
 	# We didn't add it before because we don't want Category > Category'
-	$pagecat = strstr( $skin->getTitle()->getPrefixedText(), 'Category:' );
+	$pagecat = strstr( $title->getPrefixedText(), 'Category:' );
 	if ( $pagecat !== FALSE )
 		$categories[] = substr( $pagecat, strlen('Category:') );
 	# If it's not a category page, try for an exact match of the title (e.g. 'Main')
 	else
-		$categories[] = $skin->getTitle()->getText();
+		$categories[] = $title->getText();
 
 	# Mark the corresponding tab of the sidebar as active
 	$crumbs = matchFirstCategory( CRUMBPAGE, $categories );
 	if ( !empty($crumbs[1]) ) {
 		# See if there's a corresponding link in the sidebar and mark it as active.
-		# This is especially useful for skins that display the sidebar as a tab bar. 
+		# This is especially useful for skins that display the sidebar as a tab bar.
 		if ( method_exists( $template, 'setActiveSidebarLink' ) ) {
 			# The DynamicSkin extension can build the tabs (sidebar) dynamically,
 			# and not necessarily from $template->data['sidebar'], so DynamicSkin 
@@ -80,9 +99,10 @@ function buildBreadcrumbs( $skin, $template ) {
 			$template->setActiveSidebarLink( $crumbs[1] );
 		} else {
 			# Normal skins use the global sidebar data
-			foreach ($template->data['sidebar'] as $bar => $cont) {
-				foreach ($cont as $key => $val) {
-					if ( $val['text'] == $crumbs[1] ) {
+			foreach ( $template->data['sidebar'] as $bar => $cont ) {
+				foreach ( $cont as $key => $val ) {
+					if ( $val['text'] == $crumbs[1] )
+					{
 						$template->data['sidebar'][$bar][$key]['active'] = true;
 						break;
 					}
@@ -93,7 +113,7 @@ function buildBreadcrumbs( $skin, $template ) {
 
 	# Finally, see if we should change the site logo
 	# Don't go overboard with this... subtle is better.
-	if ( ! empty($crumbs[2])) {
+	if ( !empty( $crumbs[2] ) ) {
 		global $wgLogo, $wgScriptPath;
 		$wgLogo = $wgScriptPath . '/' . $crumbs[2];
 	}
@@ -105,7 +125,6 @@ function buildBreadcrumbs( $skin, $template ) {
 function matchFirstCategory( $menuname, $categories ) {
 	# First load and parse the template page
 	$content = loadTemplate( $menuname );
-
 	# Navigation list
 	$breadcrumb = '';
 	preg_match_all( "`<li>\s*?(.*?)\s*</li>`", $content, $matches, PREG_PATTERN_ORDER );
@@ -114,8 +133,8 @@ function matchFirstCategory( $menuname, $categories ) {
 	foreach ( $matches[1] as $nav ) {
 		$pos = strpos( $nav, DELIM );				// End of category
 		if ( $pos !== false ) {
-			$cat = trim( substr($nav, 0, $pos) );
-			$crumb = trim( substr($nav, $pos + 1) );
+			$cat = trim( substr( $nav, 0, $pos ) );
+			$crumb = trim( substr( $nav, $pos + 1 ) );
 			// Is there a match for any of our page's categories?
 			if ( $cat == 'default' ) {
 				$breadcrumb = $crumb;
@@ -134,29 +153,26 @@ function matchFirstCategory( $menuname, $categories ) {
 function loadTemplate( $title ) {
 	global $wgUser, $wgParser, $wgTitle;
 
-	# Load the template article for this skin
-	$article = new Article( Title::newFromText( $title ) );
-	if ( $article ) {
-		$template = $article->fetchContent(0,false,false);
-		if ( $template ) {
-			# Drop leading and trailing blanks and escape delimiter before parsing
-			# Substitute a few skin-related variables before parsing
-			$template = preg_replace('/(^\s+|\s+$)/m', '', $template );
-			$template = str_replace( DELIM.DELIM.DELIM, "\x07", $template);
-			$template = preg_replace_callback(
-				'/'.DELIM.DELIM.'(.*?)'.DELIM.DELIM.'/',
-				"translate_variable",
-				$template
-			);
+	$template = getPageText( Title::newFromText( "$title" ) );
+	if ( $template ) {
+		# Drop leading and trailing blanks and escape delimiter before parsing
+		# Substitute a few skin-related variables before parsing
+		$template = preg_replace('/(^\s+|\s+$)/m', '', $template );
+		$template = str_replace( DELIM.DELIM.DELIM, "\x07", $template);
+		$template = preg_replace_callback(
+			'/'.DELIM.DELIM.'(.*?)'.DELIM.DELIM.'/',
+			"translate_variable",
+			$template
+		);
 
-			# Use the parser preprocessor to evaluate conditionals in the template
-			# Copy the parser to make sure we don't trash the parser state too much
-			$lparse = clone $wgParser;
-			$template = $lparse->parse( $template, $wgTitle, ParserOptions::newFromUser($wgUser) );
-			$template = str_replace( '&nbsp;', ' ', $template->getText() );
-			return $template ;
-		}
+		# Use the parser preprocessor to evaluate conditionals in the template
+		# Copy the parser to make sure we don't trash the parser state too much
+		$lparse = clone $wgParser;
+		$template = $lparse->parse( $template, $wgTitle, ParserOptions::newFromUser($wgUser) );
+		$template = str_replace( '&nbsp;', ' ', $template->getText() );
+		return $template ;
 	}
+
 	return '';
 }
 
@@ -168,7 +184,7 @@ function normalizeParameters( $input, $delimiter, $count ) {
 	$params = explode( $delimiter, $input );
 	$output = array();
 	for ( $i = 0 ; $i < $count ; $i++ ) {
-		$output[] = str_replace("\x07", $delimiter, ($i < count($params)) ? trim($params[$i]) : '');
+		$output[] = str_replace( "\x07", $delimiter, ($i < count( $params )) ? trim( $params[$i] ) : '' );
 	}
 	return $output ;
 }
@@ -193,5 +209,27 @@ function translate_variable( $matches ) {
 		# getName() returns IP for anonymous users, so check if logged in first
 		return( $wgUser->isLoggedIn() ? $wgUser->getName() : '' );
 
+	}
+}
+
+/**
+ * Gets the text contents of a page with the passed-in Title object.
+ * Code graciously provided by Semantic Forms
+ */
+function getPageText( $title ) {
+	if ( method_exists( 'WikiPage', 'getContent' ) ) {
+		// MW 1.21+
+		$wikiPage = new WikiPage( $title );
+		$content = $wikiPage->getContent();
+
+		if ( $content !== null ) {
+			return $content->getNativeData();
+		} else {
+			return null;
+		}
+	} else {
+		// MW <= 1.20
+		$article = new Article( $title );
+		return $article->getContent();
 	}
 }

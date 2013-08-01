@@ -1,0 +1,8 @@
+/* breadcrumbs used to be shown in #contentSub, so add the styling for that from vector skin */
+#breadcrumbs2 {
+  color: #7D7D7D;
+  font-size: 84%;
+  line-height: 1.2em;
+  margin: 0 0 1.4em 1em;
+  width: auto;
+}
