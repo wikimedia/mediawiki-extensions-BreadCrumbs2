@@ -151,9 +151,10 @@ function matchFirstCategory( $menuname, $categories ) {
 
 # Loads and preprocesses the template page
 function loadTemplate( $title ) {
-	global $wgUser, $wgParser, $wgTitle;
+	global $wgUser, $wgParser;
 
-	$template = getPageText( Title::newFromText( "$title" ) );
+	$title = Title::newFromText( "$title" );
+	$template = getPageText( $title );
 	if ( $template ) {
 		# Drop leading and trailing blanks and escape delimiter before parsing
 		# Substitute a few skin-related variables before parsing
@@ -168,7 +169,7 @@ function loadTemplate( $title ) {
 		# Use the parser preprocessor to evaluate conditionals in the template
 		# Copy the parser to make sure we don't trash the parser state too much
 		$lparse = clone $wgParser;
-		$template = $lparse->parse( $template, $wgTitle, ParserOptions::newFromUser($wgUser) );
+		$template = $lparse->parse( $template, $title, ParserOptions::newFromUser($wgUser) );
 		$template = str_replace( '&nbsp;', ' ', $template->getText() );
 		return $template ;
 	}
