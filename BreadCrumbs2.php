@@ -31,27 +31,14 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 # Credits for Special:Version
 $wgExtensionCredits['other'][] = array(
 	'name' => 'BreadCrumbs2',
-	'version' => '0.9.1',
+	'version' => '1.0',
 	'author' => 'Eric Hartwell', 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
 	'description' => 'Implements a Breadcrumb navigation based on categories'
 );
 
-$wgResourceModules['ext.breadcrumbs2'] = array(
-	'styles' => 'BreadCrumbs2.css',
-	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'BreadCrumbs2',
-);
-
 # Hook function modifies skin output after it has been generated
 $wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'buildBreadcrumbs';
-$wgHooks['BeforePageDisplay'][] = 'addBreadCrumbs2Modules';
-
-function addBreadCrumbs2Modules( OutputPage &$out, Skin &$skin ) {
-	$out->addModules( 'ext.breadcrumbs2' );
-
-	return true;
-}
 
 /**
  * This is the main function. Identify the categories for the current page,
@@ -85,7 +72,9 @@ function buildBreadcrumbs( $skin, $template ) {
 	$breadcrumb = trim( $crumbs[0] . ' ' . $title->getText() );
 	$breadcrumbHTML = Xml::openElement( 'div', array( 'id' => 'breadcrumbs2' ) ) . $breadcrumb .
 		Xml::closeElement( 'div' );
-	$skin->getOutput()->prependHTML( $breadcrumbHTML );
+
+	$currentSubtitle = $template->get( 'subtitle' );
+	$template->set( 'subtitle', $breadcrumbHTML . $currentSubtitle );
 
 	# If the current page is a category page, add it to the list
 	# We didn't add it before because we don't want Category > Category'
