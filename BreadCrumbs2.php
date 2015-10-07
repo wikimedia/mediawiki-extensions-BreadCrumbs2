@@ -31,7 +31,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 # Credits for Special:Version
 $wgExtensionCredits['other'][] = array(
 	'name' => 'BreadCrumbs2',
-	'version' => '1.0',
+	'version' => '1.1',
 	'author' => 'Eric Hartwell', 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
 	'description' => 'Implements a Breadcrumb navigation based on categories'
@@ -39,6 +39,11 @@ $wgExtensionCredits['other'][] = array(
 
 # Hook function modifies skin output after it has been generated
 $wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'buildBreadcrumbs';
+
+/**
+ * If breadcrumbs are defined for this page, remove the link back to the base page.
+ */
+$wgBreadCrubs2RemoveBasePageLink = false;
 
 /**
  * This is the main function. Identify the categories for the current page,
@@ -50,6 +55,8 @@ $wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'buildBreadcrumbs';
  * @return boolean
  */
 function buildBreadcrumbs( $skin, $template ) {
+	global $wgBreadCrubs2RemoveBasePageLink;
+
 	# Only show breadcrumbs when viewing the page, not editing, etc.
 	# The following line should perhaps utilize Action::getActionName( $skin->getContext() );
 	if ( $skin->getRequest()->getVal( 'action', 'view' ) != 'view' ) {
@@ -61,6 +68,7 @@ function buildBreadcrumbs( $skin, $template ) {
 
 	$title = $skin->getRelevantTitle();
 
+	/** @todo Support main namespace */
 	# Treat the namespace as a category too
 	if ( $title->getNsText() ) {
 		$categories[] = $title->getNsText();
@@ -74,6 +82,22 @@ function buildBreadcrumbs( $skin, $template ) {
 		Xml::closeElement( 'div' );
 
 	$currentSubtitle = $template->get( 'subtitle' );
+
+	if ( $wgBreadCrubs2RemoveBasePageLink && $crumbs[0] != '' ) {
+		// If breadcrumbs are defined for this page, then
+		// remove elements in the "subpages" class, which are links back to the base page.
+		$subTitleDoc = new DOMDocument();
+		$subTitleDoc->loadHTML( $currentSubtitle );
+		$a = new DOMXPath( $subTitleDoc );
+		// In MW1.25 and earlier, there is only one span with class subpages only, but we'll use a
+		// fancy query so it's more future proof.
+		$nodes = $a->query( "//*[contains(concat(' ', normalize-space(@class), ' '), ' subpages ')]" );
+		foreach ( $nodes as $node ) {
+			$node->parentNode->removeChild( $node );
+		}
+		$currentSubtitle = $subTitleDoc->saveHTML();
+	}
+
 	$template->set( 'subtitle', $breadcrumbHTML . $currentSubtitle );
 
 	# If the current page is a category page, add it to the list
