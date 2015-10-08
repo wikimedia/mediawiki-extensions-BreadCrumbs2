@@ -1,8 +1,7 @@
 <?php
 /**
  * BreadCrumbs2.php
- * @version 0.9
- * @date September 6, 2007
+ * @version 1.2
  * @author Eric Hartwell (http://www.ehartwell.com/InfoDabble/BreadCrumbs2)
  * @author Ike Hecht
  * @license Creative Commons Attribution 3.0
@@ -30,11 +29,13 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 
 # Credits for Special:Version
 $wgExtensionCredits['other'][] = array(
+	'path' => __FILE__,
 	'name' => 'BreadCrumbs2',
-	'version' => '1.1',
+	'version' => '1.2',
 	'author' => 'Eric Hartwell', 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
-	'description' => 'Implements a Breadcrumb navigation based on categories'
+	'description' => 'Implements a Breadcrumb navigation based on categories',
+	'license-name' => 'CC-BY-3.0'
 );
 
 # Hook function modifies skin output after it has been generated
@@ -46,8 +47,14 @@ $wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'buildBreadcrumbs';
 $wgBreadCrubs2RemoveBasePageLink = false;
 
 /**
+ * If no breadcrumbs are defined for this page, show nothing.
+ */
+$wgBreadCrubs2HideUnmatched = false;
+
+/**
  * This is the main function. Identify the categories for the current page,
  * then locate the first match in the navigation list.
+ *
  * @global string $wgLogo
  * @global string $wgScriptPath
  * @param Skin $skin
@@ -55,7 +62,7 @@ $wgBreadCrubs2RemoveBasePageLink = false;
  * @return boolean
  */
 function buildBreadcrumbs( $skin, $template ) {
-	global $wgBreadCrubs2RemoveBasePageLink;
+	global $wgBreadCrubs2HideUnmatched, $wgBreadCrubs2RemoveBasePageLink;
 
 	# Only show breadcrumbs when viewing the page, not editing, etc.
 	# The following line should perhaps utilize Action::getActionName( $skin->getContext() );
@@ -76,10 +83,10 @@ function buildBreadcrumbs( $skin, $template ) {
 
 	$crumbs = matchFirstCategory( CRUMBPAGE, $categories );
 
-	# add current title
-	$breadcrumb = trim( $crumbs[0] . ' ' . $title->getText() );
-	$breadcrumbHTML = Xml::openElement( 'div', array( 'id' => 'breadcrumbs2' ) ) . $breadcrumb .
-		Xml::closeElement( 'div' );
+	if ( $wgBreadCrubs2HideUnmatched && $crumbs[0] == '' ) {
+		// If no breadcrumbs are defined for this page, do nothing.
+		return true;
+	}
 
 	$currentSubtitle = $template->get( 'subtitle' );
 
@@ -97,6 +104,11 @@ function buildBreadcrumbs( $skin, $template ) {
 		}
 		$currentSubtitle = $subTitleDoc->saveHTML();
 	}
+
+	# add current title
+	$breadcrumb = trim( $crumbs[0] . ' ' . $title->getText() );
+	$breadcrumbHTML = Xml::openElement( 'div', array( 'id' => 'breadcrumbs2' ) ) . $breadcrumb .
+		Xml::closeElement( 'div' );
 
 	$template->set( 'subtitle', $breadcrumbHTML . $currentSubtitle );
 
@@ -181,13 +193,13 @@ function matchFirstCategory( $menuname, $categories ) {
  *
  * @global User $wgUser
  * @global Parser $wgParser
- * @param Title $title
+ * @param string $titleText
  * @return string
  */
-function loadTemplate( $title ) {
+function loadTemplate( $titleText ) {
 	global $wgUser, $wgParser;
 
-	$title = Title::newFromText( $title );
+	$title = Title::newFromText( $titleText );
 	$template = getPageText( $title );
 	if ( $template ) {
 		# Drop leading and trailing blanks and escape delimiter before parsing
