@@ -1,7 +1,7 @@
 <?php
 /**
  * BreadCrumbs2.php
- * @version 1.2
+ * @version 1.3
  * @author Eric Hartwell (http://www.ehartwell.com/InfoDabble/BreadCrumbs2)
  * @author Ike Hecht
  * @license Creative Commons Attribution 3.0
@@ -31,7 +31,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['other'][] = array(
 	'path' => __FILE__,
 	'name' => 'BreadCrumbs2',
-	'version' => '1.2',
+	'version' => '1.3',
 	'author' => 'Eric Hartwell', 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
 	'description' => 'Implements a Breadcrumb navigation based on categories',
@@ -93,8 +93,8 @@ function buildBreadcrumbs( $skin, $template ) {
 	if ( $wgBreadCrubs2RemoveBasePageLink && $crumbs[0] != '' ) {
 		// If breadcrumbs are defined for this page, then
 		// remove elements in the "subpages" class, which are links back to the base page.
-		$subTitleDoc = new DOMDocument();
-		$subTitleDoc->loadHTML( $currentSubtitle );
+		$htmlFormatter = new HtmlFormatter( $currentSubtitle );
+		$subTitleDoc = $htmlFormatter->getDoc();
 		$a = new DOMXPath( $subTitleDoc );
 		// In MW1.25 and earlier, there is only one span with class subpages only, but we'll use a
 		// fancy query so it's more future proof.
