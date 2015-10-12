@@ -30,6 +30,13 @@ class BreadCrumbs2 {
 	private $breadcrumb;
 
 	/**
+	 * Stores the title of the first category in the page. Used for FIRSTCATEGORY variable.
+	 *
+	 * @var string
+	 */
+	private $firstCategoryInPage;
+
+	/**
 	 * Does this page have breadcrumbs defined for it?
 	 *
 	 * @return boolean
@@ -54,6 +61,16 @@ class BreadCrumbs2 {
 	 * @return boolean
 	 */
 	public function __construct( array $categories, Title $title ) {
+		if ( !empty( $categories ) ) {
+			$this->firstCategoryInPage = $categories[0];
+		}
+
+		/** @todo Support main namespace */
+		# Treat the namespace as a category too
+		if ( $title->getNsText() ) {
+			$categories[] = $title->getNsText();
+		}
+
 		$crumbs = $this->matchFirstCategory( CRUMBPAGE, $categories );
 
 		$this->crumbPath = $crumbs[0];
@@ -192,6 +209,8 @@ class BreadCrumbs2 {
 				}
 				# getName() returns IP for anonymous users, so check if logged in first
 				return $wgUser->isLoggedIn() ? $wgUser->getName() : '';
+			case 'FIRSTCATEGORY':
+				return $this->firstCategoryInPage;
 		}
 	}
 

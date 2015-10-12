@@ -26,11 +26,6 @@ class BreadCrumbs2Hooks {
 		$categories = $skin->getOutput()->getCategories();
 		$title = $skin->getRelevantTitle();
 
-		/** @todo Support main namespace */
-		# Treat the namespace as a category too
-		if ( $title->getNsText() ) {
-			$categories[] = $title->getNsText();
-		}
 		$breadCrumbs2 = new BreadCrumbs2( $categories, $title );
 		if ( $wgBreadCrubs2HideUnmatched && !$breadCrumbs2->hasBreadCrumbs() ) {
 			// If no breadcrumbs are defined for this page, do nothing.
@@ -39,7 +34,7 @@ class BreadCrumbs2Hooks {
 
 		$currentSubtitle = $template->get( 'subtitle' );
 
-		if ( $wgBreadCrubs2RemoveBasePageLink && $breadCrumbs2->hasBreadCrumbs() ) {
+		if ( $title->isSubpage() && $wgBreadCrubs2RemoveBasePageLink && $breadCrumbs2->hasBreadCrumbs() ) {
 			// If breadcrumbs are defined for this page, then
 			// remove elements in the "subpages" class, which are links back to the base page.
 			$htmlFormatter = new HtmlFormatter( $currentSubtitle );
