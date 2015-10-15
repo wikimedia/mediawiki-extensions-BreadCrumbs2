@@ -5,8 +5,8 @@ class BreadCrumbs2Hooks {
 	/**
 	 * Main hook
 	 *
-	 * @global boolean $wgBreadCrubs2HideUnmatched
-	 * @global boolean $wgBreadCrubs2RemoveBasePageLink
+	 * @global boolean $wgBreadCrumbs2HideUnmatched
+	 * @global boolean $wgBreadCrumbs2RemoveBasePageLink
 	 * @global string $wgLogo
 	 * @global string $wgScriptPath
 	 * @param Skin $skin
@@ -15,7 +15,7 @@ class BreadCrumbs2Hooks {
 	 */
 	public static function onSkinTemplateOutputPageBeforeExec(
 	Skin &$skin, QuickTemplate &$template ) {
-		global $wgBreadCrubs2HideUnmatched, $wgBreadCrubs2RemoveBasePageLink;
+		global $wgBreadCrumbs2HideUnmatched, $wgBreadCrumbs2RemoveBasePageLink;
 
 		# Only show breadcrumbs when viewing the page, not editing, etc.
 		# The following line should perhaps utilize Action::getActionName( $skin->getContext() );
@@ -27,14 +27,14 @@ class BreadCrumbs2Hooks {
 		$title = $skin->getRelevantTitle();
 
 		$breadCrumbs2 = new BreadCrumbs2( $categories, $title );
-		if ( $wgBreadCrubs2HideUnmatched && !$breadCrumbs2->hasBreadCrumbs() ) {
+		if ( $wgBreadCrumbs2HideUnmatched && !$breadCrumbs2->hasBreadCrumbs() ) {
 			// If no breadcrumbs are defined for this page, do nothing.
 			return true;
 		}
 
 		$currentSubtitle = $template->get( 'subtitle' );
 
-		if ( $title->isSubpage() && $wgBreadCrubs2RemoveBasePageLink && $breadCrumbs2->hasBreadCrumbs() ) {
+		if ( $title->isSubpage() && $wgBreadCrumbs2RemoveBasePageLink && $breadCrumbs2->hasBreadCrumbs() ) {
 			// If breadcrumbs are defined for this page, then
 			// remove elements in the "subpages" class, which are links back to the base page.
 			$htmlFormatter = new HtmlFormatter( $currentSubtitle );

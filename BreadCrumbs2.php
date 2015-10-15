@@ -1,7 +1,7 @@
 <?php
 /**
  * BreadCrumbs2.php
- * @version 1.4.0
+ * @version 2.0.0
  * @author Eric Hartwell (http://www.ehartwell.com/InfoDabble/BreadCrumbs2)
  * @author Ike Hecht
  * @license Creative Commons Attribution 3.0
@@ -31,7 +31,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['other'][] = array(
 	'path' => __FILE__,
 	'name' => 'BreadCrumbs2',
-	'version' => '1.4.0',
+	'version' => '2.0.0',
 	'author' => 'Eric Hartwell', 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
 	'description' => 'Implements a breadcrumb navigation based on categories',
@@ -47,9 +47,9 @@ $wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'BreadCrumbs2Hooks::onSkinTempl
 /**
  * If breadcrumbs are defined for this page, remove the link back to the base page.
  */
-$wgBreadCrubs2RemoveBasePageLink = false;
+$wgBreadCrumbs2RemoveBasePageLink = false;
 
 /**
  * If no breadcrumbs are defined for this page, show nothing.
  */
-$wgBreadCrubs2HideUnmatched = false;
+$wgBreadCrumbs2HideUnmatched = false;
