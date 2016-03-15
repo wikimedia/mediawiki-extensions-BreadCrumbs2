@@ -34,9 +34,11 @@ $wgExtensionCredits['other'][] = array(
 	'version' => '2.0.0',
 	'author' => 'Eric Hartwell', 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
-	'description' => 'Implements a breadcrumb navigation based on categories',
+	'descriptionmsg' => 'breadcrumbs2-desc',
 	'license-name' => 'CC-BY-3.0'
 );
+
+$wgMessagesDirs['BreadCrumbs2'] = __DIR__ . '/i18n';
 
 $wgAutoloadClasses['BreadCrumbs2'] = __DIR__ . '/BreadCrumbs2.class.php';
 $wgAutoloadClasses['BreadCrumbs2Hooks'] = __DIR__ . '/BreadCrumbs2.hooks.php';
