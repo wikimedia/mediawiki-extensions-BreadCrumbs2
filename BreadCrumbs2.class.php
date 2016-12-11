@@ -222,20 +222,13 @@ class BreadCrumbs2 {
 	 * @return string|null
 	 */
 	function getPageText( Title $title ) {
-		if ( method_exists( 'WikiPage', 'getContent' ) ) {
-			// MW 1.21+
-			$wikiPage = new WikiPage( $title );
-			$content = $wikiPage->getContent();
+		$wikiPage = new WikiPage( $title );
+		$content = $wikiPage->getContent();
 
-			if ( $content !== null ) {
-				return $content->getNativeData();
-			} else {
-				return null;
-			}
+		if ( $content !== null ) {
+			return $content->getNativeData();
 		} else {
-			// MW <= 1.20
-			$article = new Article( $title );
-			return $article->getContent();
+			return null;
 		}
 	}
 
