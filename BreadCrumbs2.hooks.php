@@ -1,5 +1,7 @@
 <?php
 
+use HtmlFormatter\HtmlFormatter;
+
 class BreadCrumbs2Hooks {
 
 	/**
