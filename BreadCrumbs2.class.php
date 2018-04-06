@@ -42,7 +42,7 @@ class BreadCrumbs2 {
 	 * @return boolean
 	 */
 	public function hasBreadCrumbs() {
-		return (bool) $this->crumbPath != '';
+		return (bool)$this->crumbPath != '';
 	}
 
 	/**
@@ -51,7 +51,7 @@ class BreadCrumbs2 {
 	 * @return string HTML
 	 */
 	public function getOutput() {
-		return Html::rawElement( 'div', array( 'id' => 'breadcrumbs2' ), $this->breadcrumb );
+		return Html::rawElement( 'div', [ 'id' => 'breadcrumbs2' ], $this->breadcrumb );
 	}
 
 	/**
@@ -148,7 +148,7 @@ class BreadCrumbs2 {
 			$template = preg_replace( '/(^\s+|\s+$)/m', '', $template );
 			$template = str_replace( DELIM . DELIM . DELIM, "\x07", $template );
 			$template = preg_replace_callback(
-				'/' . DELIM . DELIM . '(.*?)' . DELIM . DELIM . '/', array( __CLASS__, 'translate_variable' ),
+				'/' . DELIM . DELIM . '(.*?)' . DELIM . DELIM . '/', [ __CLASS__, 'translate_variable' ],
 				$template
 			);
 
@@ -176,10 +176,10 @@ class BreadCrumbs2 {
 	function normalizeParameters( $input, $delimiter, $count ) {
 		# Split the parameters into an array
 		$params = explode( $delimiter, $input );
-		$output = array();
+		$output = [];
 		for ( $i = 0; $i < $count; $i++ ) {
 			$output[] = str_replace(
-				"\x07", $delimiter, ($i < count( $params )) ? trim( $params[$i] ) : ''  );
+				"\x07", $delimiter, ( $i < count( $params ) ) ? trim( $params[$i] ) : '' );
 		}
 		return $output;
 	}

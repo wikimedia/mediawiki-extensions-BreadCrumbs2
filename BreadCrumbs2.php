@@ -28,7 +28,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 # Credits for Special:Version
-$wgExtensionCredits['other'][] = array(
+$wgExtensionCredits['other'][] = [
 	'path' => __FILE__,
 	'name' => 'BreadCrumbs2',
 	'version' => '2.0.0',
@@ -36,7 +36,7 @@ $wgExtensionCredits['other'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
 	'descriptionmsg' => 'breadcrumbs2-desc',
 	'license-name' => 'CC-BY-3.0'
-);
+];
 
 $wgMessagesDirs['BreadCrumbs2'] = __DIR__ . '/i18n';
 
