@@ -13,7 +13,7 @@ class BreadCrumbs2Hooks {
 	 * @global string $wgScriptPath
 	 * @param Skin $skin
 	 * @param QuickTemplate $template
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function onSkinTemplateOutputPageBeforeExec(
 	Skin &$skin, QuickTemplate &$template ) {

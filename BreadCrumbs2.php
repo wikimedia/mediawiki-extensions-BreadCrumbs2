@@ -17,7 +17,7 @@
   according to the Creative Commons Attribution 3.0 License.
  */
 
-#Change these constants to customize your installation
+# Change these constants to customize your installation
 define( 'DELIM', '@' );  // Delimiter/marker for parameters and keywords
 define( 'CRUMBPAGE', 'MediaWiki:Breadcrumbs' );  // Default is 'MediaWiki:Breadcrumbs'
 

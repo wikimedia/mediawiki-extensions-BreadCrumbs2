@@ -39,7 +39,7 @@ class BreadCrumbs2 {
 	/**
 	 * Does this page have breadcrumbs defined for it?
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasBreadCrumbs() {
 		return (bool)$this->crumbPath != '';
@@ -80,9 +80,9 @@ class BreadCrumbs2 {
 
 		# If the current page is a category page, add it to the list
 		# We didn't add it before because we don't want Category > Category'
-		$pagecat = strstr( $title->getPrefixedText(), 'Category:' ); //FIXME
+		$pagecat = strstr( $title->getPrefixedText(), 'Category:' ); // FIXME
 		if ( $pagecat !== false ) {
-			$categories[] = substr( $pagecat, strlen( 'Category:' ) ); //FIXME
+			$categories[] = substr( $pagecat, strlen( 'Category:' ) ); // FIXME
 		} else {
 			# If it's not a category page, try for an exact match of the title (e.g. 'Main')
 			$categories[] = $title->getText();
