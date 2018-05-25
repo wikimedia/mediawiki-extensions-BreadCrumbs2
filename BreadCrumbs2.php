@@ -4,7 +4,7 @@
  * @version 2.0.0
  * @author Eric Hartwell (http://www.ehartwell.com/InfoDabble/BreadCrumbs2)
  * @author Ike Hecht
- * @license Creative Commons Attribution 3.0
+ * @license CC-BY-3.0
 
   This extension generates "breadcrumbs" in the web navigation sense ("Where am I?")
 
