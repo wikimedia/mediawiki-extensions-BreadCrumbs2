@@ -1,57 +1,27 @@
 <?php
-/**
- * BreadCrumbs2.php
- * @version 2.0.0
+/*
+ * This file is part of Extension:BreadCrumbs2
+ *
+ * Copyright (C) 2007; Eric Hartwell and Ike Hecht.
+ *
+ * Distributed under the terms of the CC-BY-3.0 license.
+ * Terms and conditions of the license can be found at
+ * <https://creativecommons.org/licenses/by/3.0/>
+ *
  * @author Eric Hartwell (http://www.ehartwell.com/InfoDabble/BreadCrumbs2)
  * @author Ike Hecht
  * @license CC-BY-3.0
-
-  This extension generates "breadcrumbs" in the web navigation sense ("Where am I?")
-
-  To activate the functionality of this extension include the following in your
-  LocalSettings.php file:
-  require_once "$IP/extensions/BreadCrumbs2/BreadCrumbs2.php";
-
-  Offered to the community for any use whatsoever with no restrictions other
-  than that credit be given to Eric Hartwell, at least in the source code,
-  according to the Creative Commons Attribution 3.0 License.
  */
-
-# Change these constants to customize your installation
-define( 'DELIM', '@' );  // Delimiter/marker for parameters and keywords
-define( 'CRUMBPAGE', 'MediaWiki:Breadcrumbs' );  // Default is 'MediaWiki:Breadcrumbs'
-
-# Standard sanity check
-if ( !defined( 'MEDIAWIKI' ) ) {
-	echo "This is an extension to the MediaWiki package and cannot be run standalone.\n";
-	die( -1 );
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'BreadCrumbs2' );
+	// Keep i18n globals so mergeMessageFileList.php doesn't break
+	$wgMessagesDirs['BreadCrumbs2'] = __DIR__ . '/i18n';
+	wfWarn(
+		'Deprecated PHP entry point used for the BreadCrumbs2 extension. ' .
+		'Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	);
+	return;
+} else {
+	die( 'This version of the BreadCrumbs2 extension requires MediaWiki 1.29+' );
 }
-
-# Credits for Special:Version
-$wgExtensionCredits['other'][] = [
-	'path' => __FILE__,
-	'name' => 'BreadCrumbs2',
-	'version' => '2.0.0',
-	'author' => 'Eric Hartwell', 'Ike Hecht',
-	'url' => 'https://www.mediawiki.org/wiki/Extension:BreadCrumbs2',
-	'descriptionmsg' => 'breadcrumbs2-desc',
-	'license-name' => 'CC-BY-3.0'
-];
-
-$wgMessagesDirs['BreadCrumbs2'] = __DIR__ . '/i18n';
-
-$wgAutoloadClasses['BreadCrumbs2'] = __DIR__ . '/BreadCrumbs2.class.php';
-$wgAutoloadClasses['BreadCrumbs2Hooks'] = __DIR__ . '/BreadCrumbs2.hooks.php';
-
-# Hook function modifies skin output after it has been generated
-$wgHooks['SkinTemplateOutputPageBeforeExec'][] = 'BreadCrumbs2Hooks::onSkinTemplateOutputPageBeforeExec';
-
-/**
- * If breadcrumbs are defined for this page, remove the link back to the base page.
- */
-$wgBreadCrumbs2RemoveBasePageLink = false;
-
-/**
- * If no breadcrumbs are defined for this page, show nothing.
- */
-$wgBreadCrumbs2HideUnmatched = false;

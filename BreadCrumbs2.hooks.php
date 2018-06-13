@@ -1,5 +1,17 @@
 <?php
-
+/*
+ * This file is part of Extension:BreadCrumbs2
+ *
+ * Copyright (C) 2007; Eric Hartwell and Ike Hecht.
+ *
+ * Distributed under the terms of the CC-BY-3.0 license.
+ * Terms and conditions of the license can be found at
+ * <https://creativecommons.org/licenses/by/3.0/>
+ *
+ * @author Eric Hartwell (http://www.ehartwell.com/InfoDabble/BreadCrumbs2)
+ * @author Ike Hecht
+ * @license CC-BY-3.0
+ */
 use HtmlFormatter\HtmlFormatter;
 
 class BreadCrumbs2Hooks {
