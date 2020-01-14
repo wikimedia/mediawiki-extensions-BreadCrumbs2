@@ -218,13 +218,13 @@ class BreadCrumbs2 {
 
 		switch ( strtoupper( $tag ) ) {
 			case 'USERGROUPS': // @@USERGROUPS@@ pseudo-variable: Groups this user belongs to
-				if ( !is_null( $wgParser->mOutput ) ) {
+				if ( $wgParser->mOutput !== null ) {
 					$wgParser->disableCache(); // Mark this content as uncacheable
 				}
 				return implode( ",", $wgUser->getGroups() );
 
 			case 'USERID':  // @@USERID@@ pseudo-variable: User Name, blank if anonymous
-				if ( !is_null( $wgParser->mOutput ) ) {
+				if ( $wgParser->mOutput !== null ) {
 					$wgParser->disableCache(); // Mark this content as uncacheable
 				}
 				# getName() returns IP for anonymous users, so check if logged in first
