@@ -23,8 +23,8 @@ class BreadCrumbs2Hooks {
 	 * @global boolean $wgBreadCrumbs2RemoveBasePageLink
 	 * @global string $wgLogo
 	 * @global string $wgScriptPath
-	 * @param Skin $skin
-	 * @param QuickTemplate $template
+	 * @param Skin &$skin
+	 * @param QuickTemplate &$template
 	 * @return bool
 	 */
 	public static function onSkinTemplateOutputPageBeforeExec(
