@@ -96,7 +96,8 @@ class BreadCrumbs2 {
 		$this->crumbPath = $crumbs[0];
 
 		# add current title
-		$this->breadcrumb = trim( $this->crumbPath . ' ' . $title->getText() );
+		$currentTitle = Html::rawElement( 'span', [ 'id' => 'breadcrumbs2-currentitle' ], $title->getText() );
+		$this->breadcrumb = trim( $this->crumbPath . ' ' . $currentTitle );
 
 		# If the current page is a category page, add it to the list
 		# We didn't add it before because we don't want Category > Category'
