@@ -91,7 +91,7 @@ class BreadCrumbs2 {
 			$categories[] = $title->getNsText();
 		}
 
-		$crumbs = $this->matchFirstCategory( CRUMBPAGE, $categories );
+		$crumbs = $this->matchFirstCategory( self::CRUMBPAGE, $categories );
 
 		$this->crumbPath = $crumbs[0];
 
@@ -110,7 +110,7 @@ class BreadCrumbs2 {
 		}
 
 		# Mark the corresponding tab of the sidebar as active
-		$crumbs = $this->matchFirstCategory( CRUMBPAGE, $categories );
+		$crumbs = $this->matchFirstCategory( self::CRUMBPAGE, $categories );
 		$this->sidebarText = $crumbs[1];
 		$this->logoPath = $crumbs[2];
 
@@ -133,7 +133,7 @@ class BreadCrumbs2 {
 
 		# Look for the first matching category or a default string
 		foreach ( $matches[1] as $nav ) {
-			$pos = strpos( $nav, DELIM ); // End of category
+			$pos = strpos( $nav, self::DELIM ); // End of category
 			if ( $pos !== false ) {
 				$cat = trim( substr( $nav, 0, $pos ) );
 				$crumb = trim( substr( $nav, $pos + 1 ) );
@@ -147,7 +147,7 @@ class BreadCrumbs2 {
 			}
 		}
 
-		return $this->normalizeParameters( $breadcrumb, DELIM, 3 );
+		return $this->normalizeParameters( $breadcrumb, self::DELIM, 3 );
 	}
 
 	/**
@@ -167,9 +167,10 @@ class BreadCrumbs2 {
 			# Drop leading and trailing blanks and escape delimiter before parsing
 			# Substitute a few skin-related variables before parsing
 			$template = preg_replace( '/(^\s+|\s+$)/m', '', $template );
-			$template = str_replace( DELIM . DELIM . DELIM, "\x07", $template );
+			$template = str_replace( self::DELIM . self::DELIM . self::DELIM, "\x07", $template );
 			$template = preg_replace_callback(
-				'/' . DELIM . DELIM . '(.*?)' . DELIM . DELIM . '/', [ __CLASS__, 'translate_variable' ],
+				'/' . self::DELIM . self::DELIM . '(.*?)' . self::DELIM . self::DELIM . '/',
+				[ __CLASS__, 'translate_variable' ],
 				$template
 			);
 
