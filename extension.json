@@ -22,7 +22,8 @@
 		"BreadCrumbs2Hooks": "BreadCrumbs2.hooks.php"
 	},
 	"Hooks": {
-		"SkinTemplateOutputPageBeforeExec": "BreadCrumbs2Hooks::onSkinTemplateOutputPageBeforeExec"
+		"SkinSubPageSubtitle": "BreadCrumbs2Hooks::onSkinSubPageSubtitle",
+		"SidebarBeforeOutput": "BreadCrumbs2Hooks::onSidebarBeforeOutput"
 	},
 	"config": {
 		"BreadCrumbs2RemoveBasePageLink": {

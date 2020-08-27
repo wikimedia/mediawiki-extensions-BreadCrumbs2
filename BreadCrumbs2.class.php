@@ -12,13 +12,15 @@
  * @author Ike Hecht
  * @license CC-BY-3.0
  */
+
+use MediaWiki\MediaWikiServices;
+
 class BreadCrumbs2 {
 
 	/**
 	 * Constants
 	 */
 	const DELIM = '@';
-	const CRUMBPAGE = 'MediaWiki:Breadcrumbs';
 
 	/**
 	 * Full text for the breadcrumbs, if any
@@ -57,12 +59,17 @@ class BreadCrumbs2 {
 	private $firstCategoryInPage;
 
 	/**
+	 * @var User
+	 */
+	private $user;
+
+	/**
 	 * Does this page have breadcrumbs defined for it?
 	 *
 	 * @return bool
 	 */
 	public function hasBreadCrumbs() {
-		return (bool)$this->crumbPath != '';
+		return (bool)$this->crumbPath;
 	}
 
 	/**
@@ -78,9 +85,10 @@ class BreadCrumbs2 {
 	 *
 	 * @param array $categories
 	 * @param Title $title
-	 * @return boolean
+	 * @param User $user
 	 */
-	public function __construct( array $categories, Title $title ) {
+	public function __construct( array $categories, Title $title, User $user ) {
+		$this->user = $user;
 		if ( !empty( $categories ) ) {
 			$this->firstCategoryInPage = $categories[0];
 		}
@@ -91,7 +99,7 @@ class BreadCrumbs2 {
 			$categories[] = $title->getNsText();
 		}
 
-		$crumbs = $this->matchFirstCategory( self::CRUMBPAGE, $categories );
+		$crumbs = $this->matchFirstCategory( $categories );
 
 		$this->crumbPath = $crumbs[0];
 
@@ -99,18 +107,10 @@ class BreadCrumbs2 {
 		$currentTitle = Html::rawElement( 'span', [ 'id' => 'breadcrumbs2-currentitle' ], $title->getText() );
 		$this->breadcrumb = trim( $this->crumbPath . ' ' . $currentTitle );
 
-		# If the current page is a category page, add it to the list
-		# We didn't add it before because we don't want Category > Category'
-		$pagecat = strstr( $title->getPrefixedText(), 'Category:' ); // FIXME
-		if ( $pagecat !== false ) {
-			$categories[] = substr( $pagecat, strlen( 'Category:' ) ); // FIXME
-		} else {
-			# If it's not a category page, try for an exact match of the title (e.g. 'Main')
-			$categories[] = $title->getText();
-		}
+		$categories[] = $title->getText();
 
 		# Mark the corresponding tab of the sidebar as active
-		$crumbs = $this->matchFirstCategory( self::CRUMBPAGE, $categories );
+		$crumbs = $this->matchFirstCategory( $categories );
 		$this->sidebarText = $crumbs[1];
 		$this->logoPath = $crumbs[2];
 
@@ -120,13 +120,12 @@ class BreadCrumbs2 {
 	/**
 	 * Look up the menu corresponding to the first matching category from the list
 	 *
-	 * @param string $menuname
 	 * @param array $categories
-	 * @return string
+	 * @return array
 	 */
-	function matchFirstCategory( $menuname, array $categories ) {
+	function matchFirstCategory( array $categories ) {
 		# First load and parse the template page
-		$content = $this->loadTemplate( $menuname );
+		$content = $this->loadTemplate();
 		# Navigation list
 		$breadcrumb = '';
 		preg_match_all( "`<li>\s*?(.*?)\s*</li>`", $content, $matches, PREG_PATTERN_ORDER );
@@ -147,22 +146,17 @@ class BreadCrumbs2 {
 			}
 		}
 
-		return $this->normalizeParameters( $breadcrumb, self::DELIM, 3 );
+		return self::normalizeParameters( $breadcrumb, self::DELIM, 3 );
 	}
 
 	/**
 	 * Loads and preprocesses the template page
 	 *
-	 * @global User $wgUser
-	 * @global Parser $wgParser
-	 * @param string $titleText
 	 * @return string
 	 */
-	function loadTemplate( $titleText ) {
-		global $wgUser, $wgParser;
-
-		$title = Title::newFromText( $titleText );
-		$template = $this->getPageText( $title );
+	function loadTemplate() {
+		$msg = wfMessage( 'breadcrumbs' );
+		$template = $msg->plain();
 		if ( $template ) {
 			# Drop leading and trailing blanks and escape delimiter before parsing
 			# Substitute a few skin-related variables before parsing
@@ -176,9 +170,21 @@ class BreadCrumbs2 {
 
 			# Use the parser preprocessor to evaluate conditionals in the template
 			# Copy the parser to make sure we don't trash the parser state too much
-			$lparse = clone $wgParser;
-			$template = $lparse->parse( $template, $title, ParserOptions::newFromUser( $wgUser ) );
-			$template = str_replace( '&nbsp;', ' ', $template->getText() );
+			$parser = clone self::getParser();
+			// It is needed for MW older 1.34,
+			// in other case $msg->getTitle() throws exception: Call to a member function equals() on boolean
+			$msg->inLanguage( RequestContext::getMain()->getLanguage() );
+			$template = $parser->parse(
+				$template,
+				$msg->getTitle(),
+				ParserOptions::newFromUser( $this->user )
+			);
+			try {
+				$template = str_replace( '&nbsp;', ' ', $template->getText() );
+			} catch ( MWException $e ) {
+				MWDebug::warning( $e->getText() );
+				$template = '';
+			}
 			return $template;
 		}
 
@@ -193,9 +199,9 @@ class BreadCrumbs2 {
 	 * @param string $input
 	 * @param string $delimiter
 	 * @param int $count
-	 * @return string
+	 * @return array
 	 */
-	function normalizeParameters( $input, $delimiter, $count ) {
+	private static function normalizeParameters( $input, $delimiter, $count ) {
 		# Split the parameters into an array
 		$params = explode( $delimiter, $input );
 		$output = [];
@@ -209,49 +215,41 @@ class BreadCrumbs2 {
 	/**
 	 * Returns HTML text for the specified pseudo-variable
 	 *
-	 * @global Parser $wgParser
-	 * @global User $wgUser
 	 * @param array $matches
-	 * @return string
+	 * @return string|null
 	 */
 	function translate_variable( $matches ) {
 		$tag = $matches[1];
-		global $wgParser, $wgUser;
 
 		switch ( strtoupper( $tag ) ) {
 			case 'USERGROUPS': // @@USERGROUPS@@ pseudo-variable: Groups this user belongs to
-				if ( $wgParser->mOutput !== null ) {
-					$wgParser->disableCache(); // Mark this content as uncacheable
-				}
-				return implode( ",", $wgUser->getGroups() );
-
+				self::disableCache();
+				$ugm = MediaWikiServices::getInstance()->getUserGroupManager();
+				$groups = $ugm->getUserGroups( $this->user );
+				return implode( ",", $groups );
 			case 'USERID':  // @@USERID@@ pseudo-variable: User Name, blank if anonymous
-				if ( $wgParser->mOutput !== null ) {
-					$wgParser->disableCache(); // Mark this content as uncacheable
-				}
+				self::disableCache();
 				# getName() returns IP for anonymous users, so check if logged in first
-				return $wgUser->isLoggedIn() ? $wgUser->getName() : '';
+				return $this->user->isLoggedIn() ? $this->user->getName() : '';
 			case 'FIRSTCATEGORY':
 				return $this->firstCategoryInPage;
 		}
+		return null;
 	}
 
 	/**
-	 * Gets the text contents of a page with the passed-in Title object.
-	 * Code graciously provided by Semantic Forms.
-	 *
-	 * @param Title $title
-	 * @return string|null
+	 * Set a flag in the output object indicating that the content is dynamic and
+	 * shouldn't be cached.
 	 */
-	function getPageText( Title $title ) {
-		$wikiPage = new WikiPage( $title );
-		$content = $wikiPage->getContent();
+	private static function disableCache() {
+		self::getParser()->getOutput()->updateCacheExpiry( 0 );
+	}
 
-		if ( $content !== null ) {
-			return $content->getNativeData();
-		} else {
-			return null;
-		}
+	/**
+	 * @return Parser
+	 */
+	private static function getParser() {
+		return MediaWikiServices::getInstance()->getParser();
 	}
 
 	public function getSidebarText() {
