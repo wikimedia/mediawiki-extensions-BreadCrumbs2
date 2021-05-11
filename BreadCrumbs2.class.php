@@ -230,7 +230,7 @@ class BreadCrumbs2 {
 			case 'USERID':  // @@USERID@@ pseudo-variable: User Name, blank if anonymous
 				self::disableCache();
 				# getName() returns IP for anonymous users, so check if logged in first
-				return $this->user->isLoggedIn() ? $this->user->getName() : '';
+				return $this->user->isRegistered() ? $this->user->getName() : '';
 			case 'FIRSTCATEGORY':
 				return $this->firstCategoryInPage;
 		}
