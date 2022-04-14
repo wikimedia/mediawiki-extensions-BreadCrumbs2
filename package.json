@@ -1,4 +1,5 @@
 {
+	"name": "BreadCrumbs2",
 	"private": true,
 	"scripts": {
 		"test": "grunt test"
