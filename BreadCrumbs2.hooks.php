@@ -72,7 +72,7 @@ class BreadCrumbs2Hooks {
 			# This is especially useful for skins that display the sidebar as a tab bar.
 			foreach ( $sidebar as $bar => $cont ) {
 				foreach ( $cont as $key => $val ) {
-					if ( $val['text'] === $sidebarText ) {
+					if ( isset( $val['text'] ) && $val['text'] === $sidebarText ) {
 						$sidebar[$bar][$key]['active'] = true;
 						break;
 					}
