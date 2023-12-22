@@ -103,8 +103,26 @@ class BreadCrumbs2 {
 
 		$this->crumbPath = $crumbs[0];
 
+		global $wgAllowDisplayTitles;
+		$htmlTitle = $title->getText();
+		if ( $wgAllowDisplayTitles ) {
+			$services = MediaWikiServices::getInstance();
+			if ( method_exists( $services, 'getPageProps' ) ) {
+				// MW 1.36+
+				$pageProps = $services->getPageProps();
+			} else {
+				$pageProps = PageProps::getInstance();
+			}
+			$properties = $pageProps->getProperties( $title, [ 'displaytitle' ] )[ $title->getArticleID() ] ?? [];
+			if (
+				!empty( $properties ) &&
+				trim( str_replace( '&#160;', '', strip_tags( $properties[ 'displaytitle' ] ) ) ) !== ''
+			) {
+				$htmlTitle = htmlspecialchars_decode( $properties[ 'displaytitle' ] );
+			}
+		}
 		# add current title
-		$currentTitle = Html::rawElement( 'span', [ 'id' => 'breadcrumbs2-currentitle' ], $title->getText() );
+		$currentTitle = Html::rawElement( 'span', [ 'id' => 'breadcrumbs2-currentitle' ], $htmlTitle );
 		$this->breadcrumb = trim( $this->crumbPath . ' ' . $currentTitle );
 
 		$categories[] = $title->getText();
