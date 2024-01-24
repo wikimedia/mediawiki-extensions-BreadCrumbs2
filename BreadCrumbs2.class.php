@@ -103,9 +103,9 @@ class BreadCrumbs2 {
 
 		$this->crumbPath = $crumbs[0];
 
-		global $wgAllowDisplayTitles;
+		global $wgAllowDisplayTitle;
 		$htmlTitle = $title->getText();
-		if ( $wgAllowDisplayTitles ) {
+		if ( $wgAllowDisplayTitle ) {
 			$services = MediaWikiServices::getInstance();
 			if ( method_exists( $services, 'getPageProps' ) ) {
 				// MW 1.36+
