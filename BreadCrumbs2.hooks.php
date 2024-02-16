@@ -24,11 +24,7 @@ class BreadCrumbs2Hooks {
 		}
 
 		# Get the list of categories for the current page
-		$categories = $skin->getOutput()->getCategories();
-		$title = $skin->getRelevantTitle();
-
-		$breadCrumbs2 = new BreadCrumbs2( $categories, $title, $skin->getUser() );
-		$skin->getOutput()->setProperty( 'BreadCrumbs2', $breadCrumbs2 );
+		$breadCrumbs2 = self::getBreadCrumbs2Property( $skin );
 
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 		$hideUnmatched = $config->get( 'BreadCrumbs2HideUnmatched' );
@@ -49,7 +45,7 @@ class BreadCrumbs2Hooks {
 
 		$subpages = $breadCrumbs2->getOutput() . $subpages;
 		$removeBasePageLink = $config->get( 'BreadCrumbs2RemoveBasePageLink' );
-		if ( $removeBasePageLink && $title->isSubpage() && $breadCrumbs2->hasBreadCrumbs() ) {
+		if ( $removeBasePageLink && $skin->getRelevantTitle()->isSubpage() && $breadCrumbs2->hasBreadCrumbs() ) {
 			return false;
 		}
 		return true;
@@ -61,7 +57,7 @@ class BreadCrumbs2Hooks {
 	 */
 	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ) {
 		/** @var BreadCrumbs2 $breadCrumbs2 */
-		$breadCrumbs2 = $skin->getOutput()->getProperty( 'BreadCrumbs2' );
+		$breadCrumbs2 = self::getBreadCrumbs2Property( $skin );
 		if ( !$breadCrumbs2 ) {
 			return;
 		}
@@ -79,5 +75,24 @@ class BreadCrumbs2Hooks {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Setter/Getter for the BreadCrumbs2 skin property
+	 *
+	 * @param Skin $skin
+	 * @return BreadCrumbs2
+	 */
+	private static function getBreadCrumbs2Property( Skin $skin ): BreadCrumbs2 {
+		$breadCrumbs2 = $skin->getOutput()->getProperty( 'BreadCrumbs2' );
+		if ( !empty( $breadCrumbs2 ) && $breadCrumbs2 instanceof BreadCrumbs2 ) {
+			return $breadCrumbs2;
+		}
+		$categories = $skin->getOutput()->getCategories();
+		$title = $skin->getRelevantTitle();
+
+		$breadCrumbs2 = new BreadCrumbs2( $categories, $title, $skin->getUser() );
+		$skin->getOutput()->setProperty( 'BreadCrumbs2', $breadCrumbs2 );
+		return $breadCrumbs2;
 	}
 }
