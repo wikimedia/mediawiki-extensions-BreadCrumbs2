@@ -78,6 +78,29 @@ class BreadCrumbs2Hooks {
 	}
 
 	/**
+	 * This hook will check if the Breadcrumbs page has been saved and if so, clear the cache entry.
+	 *
+	 * @param WikiPage $wikiPage
+	 * @param \MediaWiki\User\UserIdentity $user
+	 * @param string $summary
+	 * @param int $flags
+	 * @param \MediaWiki\Revision\RevisionRecord $revisionRecord
+	 * @param \MediaWiki\Storage\EditResult $editResult
+	 * @return void
+	 */
+	public static function onPageSaveComplete(
+		WikiPage $wikiPage, MediaWiki\User\UserIdentity $user,
+		string $summary,
+		int $flags, MediaWiki\Revision\RevisionRecord $revisionRecord,
+		MediaWiki\Storage\EditResult $editResult
+	) {
+		if ( $wikiPage->getTitle()->equals( Title::newFromText( 'Breadcrumbs', NS_MEDIAWIKI ) ) ) {
+			$breadCrumbsCache = new BreadCrumbs2Cache();
+			$breadCrumbsCache->getCache()->delete( $breadCrumbsCache->getCacheKey() );
+		}
+	}
+
+	/**
 	 * Setter/Getter for the BreadCrumbs2 skin property
 	 *
 	 * @param Skin $skin

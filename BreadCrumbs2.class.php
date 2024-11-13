@@ -63,6 +63,8 @@ class BreadCrumbs2 {
 	 */
 	private $user;
 
+	private BreadCrumbs2Cache $cache;
+
 	/**
 	 * Does this page have breadcrumbs defined for it?
 	 *
@@ -88,6 +90,7 @@ class BreadCrumbs2 {
 	 * @param User $user
 	 */
 	public function __construct( array $categories, Title $title, User $user ) {
+		$this->cache = new BreadCrumbs2Cache();
 		$this->user = $user;
 		if ( !empty( $categories ) ) {
 			$this->firstCategoryInPage = $categories[0];
@@ -173,6 +176,11 @@ class BreadCrumbs2 {
 	 * @return string
 	 */
 	function loadTemplate() {
+		$cacheEntry = $this->cache->get();
+		if ( $cacheEntry ) {
+			return $cacheEntry;
+		}
+
 		$msg = wfMessage( 'breadcrumbs' );
 		$template = $msg->plain();
 		if ( $template ) {
@@ -203,6 +211,9 @@ class BreadCrumbs2 {
 				MWDebug::warning( $e->getText() );
 				$template = '';
 			}
+
+			$this->cache->set( $template );
+
 			return $template;
 		}
 
@@ -277,4 +288,5 @@ class BreadCrumbs2 {
 	public function getLogoPath() {
 		return $this->logoPath;
 	}
+
 }

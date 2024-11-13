@@ -1,16 +1,17 @@
 {
 	"name": "BreadCrumbs2",
-	"version": "2.1.3",
+	"version": "2.1.4",
 	"author": [
 		"Eric Hartwell",
-		"Ike Hecht"
+		"Ike Hecht",
+		"[https://www.archixl.nl Youri van den Bogert]"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:BreadCrumbs2",
 	"descriptionmsg": "breadcrumbs2-desc",
 	"license-name": "CC-BY-3.0",
 	"type": "other",
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.35.0"
 	},
 	"MessagesDirs": {
 		"BreadCrumbs2": [
@@ -19,11 +20,13 @@
 	},
 	"AutoloadClasses": {
 		"BreadCrumbs2": "BreadCrumbs2.class.php",
-		"BreadCrumbs2Hooks": "BreadCrumbs2.hooks.php"
+		"BreadCrumbs2Hooks": "BreadCrumbs2.hooks.php",
+		"BreadCrumbs2Cache": "BreadCrumbs2.cache.php"
 	},
 	"Hooks": {
 		"SkinSubPageSubtitle": "BreadCrumbs2Hooks::onSkinSubPageSubtitle",
-		"SidebarBeforeOutput": "BreadCrumbs2Hooks::onSidebarBeforeOutput"
+		"SidebarBeforeOutput": "BreadCrumbs2Hooks::onSidebarBeforeOutput",
+		"PageSaveComplete": "BreadCrumbs2Hooks::onPageSaveComplete"
 	},
 	"config": {
 		"BreadCrumbs2RemoveBasePageLink": {
