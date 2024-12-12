@@ -107,7 +107,7 @@ class BreadCrumbs2 {
 		$this->crumbPath = $crumbs[0];
 
 		global $wgAllowDisplayTitle;
-		$htmlTitle = $title->getText();
+		$htmlTitle = htmlspecialchars( $title->getText() );
 		if ( $wgAllowDisplayTitle ) {
 			$services = MediaWikiServices::getInstance();
 			if ( method_exists( $services, 'getPageProps' ) ) {
@@ -116,12 +116,14 @@ class BreadCrumbs2 {
 			} else {
 				$pageProps = PageProps::getInstance();
 			}
-			$properties = $pageProps->getProperties( $title, [ 'displaytitle' ] )[ $title->getArticleID() ] ?? [];
-			if (
-				!empty( $properties ) &&
-				trim( str_replace( '&#160;', '', strip_tags( $properties[ 'displaytitle' ] ) ) ) !== ''
-			) {
-				$htmlTitle = htmlspecialchars_decode( $properties[ 'displaytitle' ] );
+
+			$displayTitle = $pageProps->getProperties( $title, 'displaytitle' )[ $title->getArticleID() ] ?? '';
+			$plainTextDisplayTitle = trim( Sanitizer::stripAllTags( $displayTitle ) );
+
+			// There is no need to check $wgRestrictDisplayTitle, as core already
+			// does that prior to setting the page property
+			if ( $plainTextDisplayTitle !== '' ) {
+				$htmlTitle = $displayTitle;
 			}
 		}
 		# add current title
