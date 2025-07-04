@@ -13,7 +13,9 @@
  * @license CC-BY-3.0
  */
 
+use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 
 class BreadCrumbs2 {
 
