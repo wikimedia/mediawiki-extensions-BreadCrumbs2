@@ -13,6 +13,7 @@
  * @license CC-BY-3.0
  */
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 
 class BreadCrumbs2Hooks {
 
