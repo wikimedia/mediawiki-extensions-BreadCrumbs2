@@ -112,12 +112,7 @@ class BreadCrumbs2 {
 		$htmlTitle = htmlspecialchars( $title->getText() );
 		if ( $wgAllowDisplayTitle ) {
 			$services = MediaWikiServices::getInstance();
-			if ( method_exists( $services, 'getPageProps' ) ) {
-				// MW 1.36+
-				$pageProps = $services->getPageProps();
-			} else {
-				$pageProps = PageProps::getInstance();
-			}
+			$pageProps = $services->getPageProps();
 
 			$displayTitle = $pageProps->getProperties( $title, 'displaytitle' )[ $title->getArticleID() ] ?? '';
 			$plainTextDisplayTitle = trim( Sanitizer::stripAllTags( $displayTitle ) );
