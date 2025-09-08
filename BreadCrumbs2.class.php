@@ -86,7 +86,6 @@ class BreadCrumbs2 {
 	}
 
 	/**
-	 *
 	 * @param array $categories
 	 * @param Title $title
 	 * @param User $user
