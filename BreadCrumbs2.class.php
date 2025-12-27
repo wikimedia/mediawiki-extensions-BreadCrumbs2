@@ -198,13 +198,18 @@ class BreadCrumbs2 {
 			// It is needed for MW older 1.34,
 			// in other case $msg->getTitle() throws exception: Call to a member function equals() on boolean
 			$msg->inLanguage( RequestContext::getMain()->getLanguage() );
+			$parserOptions = ParserOptions::newFromUser( $this->user );
 			$template = $parser->parse(
 				$template,
 				$msg->getTitle(),
-				ParserOptions::newFromUser( $this->user )
+				$parserOptions
 			);
 			try {
-				$template = str_replace( '&nbsp;', ' ', $template->getText() );
+				$template = str_replace(
+					'&nbsp;',
+					' ',
+					$template->runOutputPipeline( $parserOptions )->getContentHolderText()
+				);
 			} catch ( MWException $e ) {
 				MWDebug::warning( $e->getText() );
 				$template = '';
