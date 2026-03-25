@@ -153,7 +153,7 @@ class BreadCrumbs2 {
 		foreach ( $matches[1] as $nav ) {
 			$pos = strpos( $nav, self::DELIM ); // End of category
 			if ( $pos !== false ) {
-				$cat = trim( substr( $nav, 0, $pos ) );
+				$cat = html_entity_decode( trim( substr( $nav, 0, $pos ) ), ENT_QUOTES | ENT_HTML5 );
 				$crumb = trim( substr( $nav, $pos + 1 ) );
 				// Is there a match for any of our page's categories?
 				if ( $cat == 'default' ) {
